@@ -19,6 +19,12 @@ export class ProgressController {
     return this.progress.list(user_id);
   }
 
+  @Get('summary')
+  summary(@Query('user_id') user_id: string) {
+    if (!user_id) throw new BadRequestException('user_id query required');
+    return this.progress.summary(user_id);
+  }
+
   @Post()
   upsert(@Body() dto: UpsertDto) {
     return this.progress.upsert(dto.user_id, dto.topic, dto.xp, dto.progress_percentage);

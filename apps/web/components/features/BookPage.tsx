@@ -23,10 +23,10 @@ interface BookPageProps {
 }
 
 /**
- * One "page" of the digital talking book — the ZAYAN touch-button grid.
+ * One "page" of the digital talking book — the iSchool touch-button grid.
  * Read mode: 1st tap speaks the name only (spell-first); 2nd tap adds the
  * word/meaning sentence. ❓ Question mode unlocks after LISTENS_TO_UNLOCK
- * total listens and asks "X কোথায়?" like the physical question key.
+ * total listens and asks "X কোথায়?" in quiz mode.
  */
 export function BookPage({ page, onOpenLetter, onClose }: BookPageProps) {
   const [uiLang, setUiLang] = useState<BookLang>(page.defaultLang);
@@ -142,7 +142,7 @@ export function BookPage({ page, onOpenLetter, onClose }: BookPageProps) {
         </span>
       </div>
 
-      {/* Language keys — like the physical book's বাংলা/English/عربي buttons */}
+      {/* Language switch — বাংলা / English / عربي */}
       {page.langs.length > 1 && (
         <div className="mt-2 flex items-center justify-center gap-2" role="group" aria-label="Language">
           {(["bn", "en", "ar"] as const)

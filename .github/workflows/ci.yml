@@ -33,3 +33,35 @@ jobs:
       - run: npm ci --workspace=apps-web || npm install --workspace=apps-web --no-audit --no-fund
       - run: npm run test --workspace=apps-web -- --run
       - run: npm run build --workspace=apps-web
+
+  # Per-feature signals: each epic below must stay green on its own.
+  # Curriculum content + validation (lib/curriculum.ts)
+  feature-curriculum:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm install --workspace=apps-web --no-audit --no-fund
+      - run: npm run test --workspace=apps-web -- --run curriculum
+
+  # Video platform: parsers, embeds, structuring (lib/video-sources.ts)
+  feature-video:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm install --workspace=apps-web --no-audit --no-fund
+      - run: npm run test --workspace=apps-web -- --run video-sources
+
+  # Admin control plane: catalog + guard + students/stats (apps/api)
+  feature-admin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm install --workspace=apps-api --no-audit --no-fund
+      - run: npm run test --workspace=apps-api -- src/catalog-admin.spec.ts --runInBand
+      - run: npm run build --workspace=apps-api

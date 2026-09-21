@@ -13,6 +13,9 @@ interface QuizSheetProps {
  * Generic Tier 2/3 lesson sheet: instruction → Socratic hints (💡, stepped,
  * never revealing) → MCQ → XP. One component serves math, physics,
  * chemistry, ICT and AI tracks (one-track-per-tier rule).
+ *
+ * TTS policy: NO autoplay here (class 3+). Speech is tap-to-hear only —
+ * every block has its own 🔊 button, plus admin voice-overs where attached.
  */
 export function QuizSheet({ track, startAt, onExit }: QuizSheetProps) {
   const [idx, setIdx] = useState(startAt ?? 0);
@@ -32,7 +35,7 @@ export function QuizSheet({ track, startAt, onExit }: QuizSheetProps) {
     setRevealed(0);
     setSelected(null);
     setResult("idle");
-    if (lesson?.instruction) speakBangla(lesson.instruction);
+    // No autoplay TTS on class 3+ (see lib/tts-policy.ts) — 🔊 buttons below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx, track.id]);
 
@@ -40,9 +43,7 @@ export function QuizSheet({ track, startAt, onExit }: QuizSheetProps) {
 
   function revealHint(): void {
     if (revealed >= lesson!.hints.length) return;
-    const hint = lesson!.hints[revealed];
     setRevealed((r) => r + 1);
-    if (hint) speakBangla(`হিন্ট: ${hint}`);
   }
 
   function answer(i: number): void {
@@ -54,10 +55,8 @@ export function QuizSheet({ track, startAt, onExit }: QuizSheetProps) {
       store.markSeen(`lesson:${track.id}:${lesson.id}`);
       store.recordListen(`lesson:${track.id}:${lesson.id}`);
       setResult("good");
-      speakBangla(lesson.onSuccess);
     } else {
       setResult("bad");
-      speakBangla(lesson.onFailure);
     }
     window.setTimeout(() => {
       // Keep success visible (with the next-lesson button); clear failure nudges.
@@ -112,6 +111,14 @@ export function QuizSheet({ track, startAt, onExit }: QuizSheetProps) {
 
       <p className="mt-3 font-bengali text-base opacity-80">{track.coachLine}</p>
       <h2 className="mt-1 font-bengali text-xl font-black">{lesson.instruction}</h2>
+      <button
+        type="button"
+        onClick={() => speakBangla(lesson.instruction)}
+        aria-label="Listen to instruction"
+        className="mt-1 min-h-[44px] rounded-full border-[3px] border-ink bg-white px-4 py-1 font-black shadow-[3px_3px_0_#16324f] active:translate-y-0.5"
+      >
+        🔊 শোনো
+      </button>
       <h3 className="mt-2 font-bengali text-2xl font-black">{lesson.prompt}</h3>
 
       <div className="mt-3">

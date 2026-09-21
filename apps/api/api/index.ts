@@ -1,3 +1,4 @@
+import '../src/env';
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
@@ -16,7 +17,10 @@ async function getExpressApp() {
     app.use(helmet());
     app.setGlobalPrefix('api');
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-    app.enableCors({ origin: process.env.WEB_ORIGIN?.split(',') ?? true, credentials: true });
+    // '*' with credentials:true is rejected by browsers — reflect the origin instead.
+    const origins = process.env.WEB_ORIGIN?.split(',').map((s) => s.trim()).filter(Boolean) ?? [];
+    const corsOrigin = origins.length === 0 || origins.includes('*') ? true : origins;
+    app.enableCors({ origin: corsOrigin, credentials: true });
     await app.init();
     cachedApp = app.getHttpAdapter().getInstance();
   }

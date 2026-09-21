@@ -1,6 +1,5 @@
 "use client";
 import { useMemo, useState } from "react";
-import { speakBangla } from "../../lib/store";
 
 interface ParentGateProps {
   pageTitle: string;
@@ -33,8 +32,8 @@ export function ParentGate({ pageTitle, onPass, onClose }: ParentGateProps) {
     if (n === quiz.answer) {
       onPass();
     } else {
+      // Visual feedback only — no TTS outside child materials (tts-policy).
       setWrong(true);
-      speakBangla("আবার চেষ্টা করো!");
       window.setTimeout(() => setWrong(false), 900);
     }
   }

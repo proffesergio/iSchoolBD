@@ -1,14 +1,21 @@
 {
   "name": "iSchool BD",
   "short_name": "iSchool",
-  "description": "Bangla-first talking-book learning — ছুঁয়ে শোনো, খেলে শেখো (NCTB-aligned, offline-ready)",
+  "description": "Bangla-first gamified learning — video courses and interactive lessons (NCTB-aligned, offline-ready)",
   "id": "/",
   "dir": "ltr",
   "categories": ["education", "kids"],
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
   "background_color": "#e9fff2",
   "theme_color": "#22b07d",
   "lang": "bn",
-  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }],
+  "shortcuts": [
+    { "name": "Courses", "url": "/courses", "description": "Browse courses by class and subject" },
+    { "name": "Videos", "url": "/videos", "description": "Continue watching video lessons" },
+    { "name": "Search", "url": "/search", "description": "Search lessons and videos" },
+    { "name": "Profile", "url": "/profile", "description": "XP, streaks and settings" }
+  ]
 }

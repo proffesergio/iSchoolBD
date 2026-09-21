@@ -1,5 +1,5 @@
 /**
- * Digital Talking-Book registry — ZAYAN-parity content model.
+ * Digital Talking-Book registry — iSchool original content model.
  * Physical book primitives mapped to the PWA:
  *  touch button  -> tap card (spell-first TTS, staged word on 2nd tap)
  *  language keys -> per-page বাংলা / English / عربي toggle
