@@ -1,6 +1,6 @@
 "use client";
 import { create } from "zustand";
-import type { TierId } from "../../../types/edtech";
+import type { TierId } from "../types/edtech";
 
 /** Spell-only listens required before the quiz unlocks for a letter. */
 export const LISTENS_TO_UNLOCK = 2;

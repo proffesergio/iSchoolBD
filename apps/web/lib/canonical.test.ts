@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import type { EdTechContentPayload, LegacyEnginePayload } from "../../../types/edtech";
-import { toCanonicalPayload, toLegacyEnginePayload } from "../../../types/edtech";
+import type { EdTechContentPayload, LegacyEnginePayload } from "../types/edtech";
+import { toCanonicalPayload, toLegacyEnginePayload } from "../types/edtech";
 
 const LEGACY_FIXTURE: LegacyEnginePayload = {
   module_metadata: { tier: "tier_2", topic: "nctb_math_class3_addition", progress_percentage: 20 },

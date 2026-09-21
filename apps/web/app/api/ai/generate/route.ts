@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { EdTechContentPayload } from "../../../../../../types/edtech";
+import type { EdTechContentPayload } from "../../../../types/edtech";
 import { EdTechPayloadSchema } from "../../../../lib/ai-schema";
 
 export const runtime = "edge";
