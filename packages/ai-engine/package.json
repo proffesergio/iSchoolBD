@@ -1,0 +1,17 @@
+{
+  "name": "@ischool/ai-engine",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Core AI Engine contracts: strict JSON schema, validator, token optimizer, mock Tier engine (Bangla-first, NCTB-aligned)",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./schema": "./ischool.schema.json"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "validate": "node ./src/validate-example.js",
+    "lint": "node --check ./src/*.js"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,35 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  engine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm run test --workspace=@ischool/ai-engine
+
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci --workspace=apps-api || npm install --workspace=apps-api --no-audit --no-fund
+      - run: npm run test --workspace=apps-api -- --runInBand
+      - run: npm run build --workspace=apps-api
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci --workspace=apps-web || npm install --workspace=apps-web --no-audit --no-fund
+      - run: npm run test --workspace=apps-web -- --run
+      - run: npm run build --workspace=apps-web

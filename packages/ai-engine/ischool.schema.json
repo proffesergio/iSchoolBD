@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ischool-bd.org/schemas/ischool-response-v1.json",
+  "title": "iSchool AI Engine Response",
+  "type": "object",
+  "required": ["module_metadata", "ui_component", "content", "gamification"],
+  "additionalProperties": false,
+  "properties": {
+    "module_metadata": {
+      "type": "object",
+      "required": ["tier", "topic", "progress_percentage"],
+      "additionalProperties": false,
+      "properties": {
+        "tier": { "enum": ["tier_1", "tier_2", "tier_3"] },
+        "topic": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "progress_percentage": { "type": "integer", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "ui_component": {
+      "type": "object",
+      "required": ["type", "visual_elements"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": ["talking_letter", "quiz_screen", "socratic_hint", "dashboard_reward"] },
+        "visual_elements": {
+          "type": "object",
+          "required": ["character_avatar", "background_theme", "animation_trigger"],
+          "additionalProperties": false,
+          "properties": {
+            "character_avatar": { "type": "string", "minLength": 1, "maxLength": 80 },
+            "background_theme": { "type": "string", "minLength": 1, "maxLength": 80 },
+            "animation_trigger": { "enum": ["success_sparkle", "shake_error", "bounce_idle", "pop_expand", "confetti_burst"] }
+          }
+        }
+      }
+    },
+    "content": {
+      "type": "object",
+      "required": ["instruction_text"],
+      "additionalProperties": false,
+      "properties": {
+        "instruction_text": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "interactive_script": { "type": "string", "maxLength": 800 },
+        "challenge": {
+          "type": "object",
+          "required": ["question_type", "question_body", "options", "correct_answer_index"],
+          "additionalProperties": false,
+          "properties": {
+            "question_type": { "enum": ["multiple_choice", "word_rearrange", "phonetic_matching", "fill_in_the_blanks"] },
+            "question_body": { "type": "string", "minLength": 1 },
+            "options": { "type": "array", "minItems": 2, "maxItems": 6, "items": { "type": "string" } },
+            "correct_answer_index": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "socratic_hint": { "type": "string" }
+          }
+        }
+      }
+    },
+    "gamification": {
+      "type": "object",
+      "required": ["xp_reward", "streak_multiplier", "feedback_message"],
+      "additionalProperties": false,
+      "properties": {
+        "xp_reward": { "type": "integer", "minimum": 0, "maximum": 500 },
+        "streak_multiplier": { "type": "number", "minimum": 1.0, "maximum": 5.0 },
+        "feedback_message": {
+          "type": "object",
+          "required": ["on_success", "on_failure"],
+          "additionalProperties": false,
+          "properties": {
+            "on_success": { "type": "string" },
+            "on_failure": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+// ischool-bd — Prisma base model (Neon PostgreSQL)
+// Section 4.2 contract: strict gamification loop natively enforced.
+// Neon connection: set DATABASE_URL="postgresql://user:pass@ep-xxx.neon.tech/ischool?sslmode=require"
+// Vercel Free Tier: pure Prisma Client (no native modules beyond query engine). For Edge,
+// prefer @neondatabase/serverless in Route Handlers and keep Prisma in Node.js handlers / NestJS.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String     @id @default(uuid())
+  name          String
+  email         String     @unique
+  role          Role       @default(STUDENT)
+  currentTier   Tier       @default(tier_1)
+  currentXP     Int        @default(0)
+  currentStreak Int        @default(0)
+  lastActiveAt  DateTime   @updatedAt
+  progressLog   Progress[]
+}
+
+model Progress {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicId       String
+  completedAt   DateTime @default(now())
+  scoreAchieved Int
+
+  @@index([userId, topicId])
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+enum Tier {
+  tier_1
+  tier_2
+  tier_3
+}

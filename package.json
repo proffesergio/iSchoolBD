@@ -1,0 +1,36 @@
+{
+  "name": "ischool-bd",
+  "version": "0.1.0",
+  "private": true,
+  "description": "iSchool BD — Gamified EdTech for Bangladesh (NCTB-aligned, Bangla-first, PWA + AI Engine)",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "backend": "cross-env PORT=3001 npm run dev:api",
+    "frontend": "cross-env PORT=3000 npm run dev:web",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:api": "npm run start:dev --workspace=apps/api",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:engine": "npm run test --workspace=@ischool/ai-engine",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "tsc -b",
+    "validate:schema": "npm run validate --workspace=@ischool/ai-engine"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/proffesergio/iSchoolBD"
+  },
+  "dependencies": {
+    "@neon/config": "^1.7.2",
+    "@neon/env": "^1.4.3",
+    "cross-env": "^10.1.0"
+  }
+}
