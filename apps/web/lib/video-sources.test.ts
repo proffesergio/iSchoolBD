@@ -4,6 +4,7 @@ import {
   isInlinePlayable,
   parseVideoLink,
   structureImport,
+  validateCheckpoints,
   validateCourse,
   type VideoCourse,
 } from "./video-sources";
@@ -60,8 +61,21 @@ describe("unified video sources", () => {
     expect(sections[1].lectures).toHaveLength(1);
   });
 
-  it("validates a course", () => {
-    const yt = parseVideoLink("https://youtu.be/dQw4w9WgXcQ")!;
+  it("validates checkpoints for micro-assessments", () => {
+    expect(validateCheckpoints(undefined)).toEqual([]);
+    expect(
+      validateCheckpoints([{ atSec: 30, prompt: "১+১?", choices: ["১", "২"], correctChoiceIndex: 1, xp: 5 }])
+    ).toEqual([]);
+    const bad = validateCheckpoints([
+      { atSec: -1, prompt: "", choices: ["only"], correctChoiceIndex: 4, xp: 999 },
+    ]);
+    expect(bad.length).toBeGreaterThanOrEqual(3);
+    expect(validateCheckpoints(new Array(11).fill({ atSec: 1, prompt: "q", choices: ["a", "b"], correctChoiceIndex: 0 }))).toContain(
+      "at most 10 checkpoints per lecture"
+    );
+  });
+
+  it("validates a course", () => {    const yt = parseVideoLink("https://youtu.be/dQw4w9WgXcQ")!;
     const course: VideoCourse = {
       id: "demo", titleBn: "ডেমো", titleEn: "Demo",
       sections: [{ id: "demo-s1", title: "Section 1", lectures: [{ id: "demo-l1", title: "L1", video: yt }] }],

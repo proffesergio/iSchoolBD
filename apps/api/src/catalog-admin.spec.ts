@@ -141,6 +141,31 @@ describe('Control plane (catalog + admin + summary)', () => {
     expect(del.body.lecturesRemoved).toBe(0);
   });
 
+  it('PUT /api/admin/lectures validates checkpoints', async () => {
+    const bad = await request(app.getHttpServer())
+      .put('/api/admin/lectures')
+      .set('x-admin-key', 'test-admin-key')
+      .send({
+        id: 'test-cp', title: 'CP', provider: 'youtube',
+        sourceUrl: 'https://youtu.be/dQw4w9WgXcQ', courseId: 'gonit-1-intro',
+        checkpoints: [{ atSec: 10, prompt: '', choices: ['only-one'], correctChoiceIndex: 5 }],
+      });
+    expect(bad.status).toBe(400);
+    const good = await request(app.getHttpServer())
+      .put('/api/admin/lectures')
+      .set('x-admin-key', 'test-admin-key')
+      .send({
+        id: 'test-cp', title: 'CP', provider: 'youtube',
+        sourceUrl: 'https://youtu.be/dQw4w9WgXcQ', courseId: 'gonit-1-intro',
+        checkpoints: [{ atSec: 30, prompt: '১+১?', choices: ['১', '২'], correctChoiceIndex: 1, xp: 5 }],
+      });
+    expect(good.status).toBe(200);
+    expect(good.body.checkpoints).toHaveLength(1);
+    await request(app.getHttpServer())
+      .delete('/api/admin/lectures/test-cp')
+      .set('x-admin-key', 'test-admin-key');
+  });
+
   it('PUT /api/admin/lessons stores manual voice-over fields', async () => {
     const put = await request(app.getHttpServer())
       .put('/api/admin/lessons')

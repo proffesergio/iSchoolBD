@@ -127,6 +127,43 @@ a.pill { text-decoration: none; }
 .lecture-title { flex: 1; }
 .lecture-dur { opacity: .65; font-size: 13px; }
 
+/* ---- Epic 3.1 player: network states, checkpoints, feedback kit ---- */
+.net-note {
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  background: rgba(10, 16, 35, 0.85); color: #fff; font-size: 14px; font-weight: 700;
+  padding: 8px 16px; border-radius: 999px; z-index: 5; white-space: nowrap;
+}
+.net-note.offline { background: rgba(34, 176, 125, 0.92); }
+.courseplayer-stage { position: relative; }
+.checkpoint {
+  position: absolute; inset: auto 12px 64px 12px; z-index: 6;
+  background: var(--card); color: var(--ink); border: 3px solid var(--ink); border-radius: 18px;
+  padding: 14px; text-align: center; box-shadow: 4px 4px 0 var(--ink); animation: pop .25s ease;
+  max-height: 70%; overflow: auto;
+}
+.checkpoint h4 { margin: 0 0 6px; }
+.checkpoint p { margin: 6px 0; }
+.confetti-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 80; pointer-events: none; }
+.xp-toasts {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(150px + env(safe-area-inset-bottom)); z-index: 70;
+  display: flex; flex-direction: column; gap: 6px; align-items: center; pointer-events: none;
+}
+.xp-toast {
+  background: var(--accent2); color: #fff; font-weight: 900; font-size: 17px;
+  border: 3px solid var(--ink); border-radius: 999px; padding: 8px 18px;
+  box-shadow: 3px 3px 0 var(--ink); animation: toast-in 2.6s ease both;
+}
+@keyframes toast-in {
+  0% { opacity: 0; transform: translateY(16px) scale(0.8); }
+  12% { opacity: 1; transform: translateY(0) scale(1.05); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-14px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .xp-toast { animation: none; }
+}
+
 /* ---- Admin panel + student dashboard ---- */
 .admin-grid { display: grid; gap: 8; }
 @media (min-width: 640px) { .admin-grid { grid-template-columns: 1fr 1fr; } }

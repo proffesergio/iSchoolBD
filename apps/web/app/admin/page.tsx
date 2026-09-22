@@ -13,7 +13,7 @@ import {
   type VideoCourseTree,
 } from "../../lib/admin-client";
 import { chartGeometry } from "../../lib/admin-chart";
-import { isInlinePlayable, parseVideoLink } from "../../lib/video-sources";
+import { isInlinePlayable, parseVideoLink, validateCheckpoints } from "../../lib/video-sources";
 
 type Tab = "stats" | "lessons" | "videos" | "students";
 
@@ -74,6 +74,8 @@ export default function AdminPage() {
   const [vcForm, setVcForm] = useState({ id: "", titleBn: "", titleEn: "", classId: "class-1", subject: "math" });
   const [newSection, setNewSection] = useState({ id: "", title: "" });
   const [sectionDrafts, setSectionDrafts] = useState<Record<string, string>>({});
+  const [cpOpen, setCpOpen] = useState<string | null>(null);
+  const [cpDraft, setCpDraft] = useState("");
 
   const [students, setStudents] = useState<StudentRow[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -268,14 +270,45 @@ export default function AdminPage() {
     }
   }
 
-  async function removeSection(id: string, lectureCount: number): Promise<void> {
-    if (!key || !window.confirm(`Delete section + ${lectureCount} lectures? ${id}`)) return;
+  async function removeSection(id: string, lectureCount: number): Promise<void> {    if (!key || !window.confirm(`Delete section + ${lectureCount} lectures? ${id}`)) return;
     try {
       const out = await adminApi.deleteSection(key, id);
       setNotice(`Deleted section ${id} (+${out.lecturesRemoved} lectures)`);
       await refresh(key);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Delete failed");
+    }
+  }
+
+  function openCpEditor(lectureId: string, current: AdminLectureInput["checkpoints"]): void {
+    setCpOpen(lectureId);
+    setCpDraft(JSON.stringify(current ?? [{ atSec: 60, prompt: "", choices: ["", ""], correctChoiceIndex: 0, xp: 5 }], null, 2));
+    setError(null);
+  }
+
+  async function saveCheckpoints(lecture: AdminLectureInput): Promise<void> {
+    if (!key) return;
+    setError(null);
+    setNotice(null);
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(cpDraft);
+    } catch {
+      setError("JSON ভুল — brackets আর commas দেখো।");
+      return;
+    }
+    const issues = validateCheckpoints(parsed as AdminLectureInput["checkpoints"]);
+    if (issues.length > 0) {
+      setError(`Checkpoints: ${issues.join("; ")}`);
+      return;
+    }
+    try {
+      await adminApi.upsertLecture(key, { ...lecture, checkpoints: parsed as AdminLectureInput["checkpoints"] });
+      setNotice(`Check-ins saved for ${lecture.id}`);
+      setCpOpen(null);
+      await refresh(key);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Save failed");
     }
   }
 
@@ -659,7 +692,7 @@ export default function AdminPage() {
                   </div>
                   <div className="pro-tablewrap">
                     <table className="pro-table">
-                      <thead><tr><th>Lecture</th><th>Provider</th><th></th></tr></thead>
+                      <thead><tr><th>Lecture</th><th>Provider</th><th>Check-ins</th><th></th></tr></thead>
                       <tbody>
                         {s.lectures
                           .filter((l) => !query.trim() || `${l.title} ${l.provider}`.toLowerCase().includes(query.trim().toLowerCase()))
@@ -667,12 +700,41 @@ export default function AdminPage() {
                             <tr key={l.id}>
                               <td><strong>{l.title}</strong></td>
                               <td>{l.provider}{!isInlinePlayable(l) && " · external"}</td>
-                              <td><button className="pro-btn line" onClick={() => removeLecture(l.id)}>Delete</button></td>
+                              <td>{l.checkpoints?.length ?? 0} ✋</td>
+                              <td style={{ whiteSpace: "nowrap" }}>
+                                <button className="pro-btn line" onClick={() => openCpEditor(l.id, l.checkpoints)}>Check-ins</button>{" "}
+                                <button className="pro-btn line" onClick={() => removeLecture(l.id)}>Delete</button>
+                              </td>
                             </tr>
                           ))}
                       </tbody>
                     </table>
                   </div>
+                  {cpOpen && s.lectures.some((l) => l.id === cpOpen) && (
+                    <div style={{ marginTop: 10 }}>
+                      <h4>✋ Check-ins for {cpOpen} (JSON array)</h4>
+                      <textarea
+                        value={cpDraft}
+                        onChange={(e) => setCpDraft(e.target.value)}
+                        rows={8}
+                        spellCheck={false}
+                        aria-label="Checkpoints JSON"
+                        style={{ width: "100%", fontFamily: "monospace", fontSize: 13, borderRadius: 10, padding: 10, boxSizing: "border-box" }}
+                      />
+                      <div className="pro-row">
+                        <button
+                          className="pro-btn go"
+                          onClick={() => {
+                            const lec = s.lectures.find((x) => x.id === cpOpen);
+                            if (lec) void saveCheckpoints(lec);
+                          }}
+                        >
+                          Save check-ins
+                        </button>
+                        <button className="pro-btn line" onClick={() => setCpOpen(null)}>Close</button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

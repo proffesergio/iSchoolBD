@@ -31,6 +31,37 @@ export interface Lecture {
   title: string;
   durationSec?: number;
   video: VideoRef;
+  /** in-video micro-assessment check-ins (VID-2), sorted by atSec */
+  checkpoints?: Checkpoint[];
+}
+
+export interface Checkpoint {
+  atSec: number;
+  prompt: string;
+  choices: string[];
+  correctChoiceIndex: number;
+  xp?: number;
+}
+
+/** Validate teacher-authored checkpoints. Returns issue strings. */
+export function validateCheckpoints(checkpoints: Checkpoint[] | undefined): string[] {
+  if (!checkpoints) return [];
+  const issues: string[] = [];
+  if (checkpoints.length > 10) issues.push("at most 10 checkpoints per lecture");
+  checkpoints.forEach((c, i) => {
+    const tag = `checkpoint[${i}]`;
+    if (!Number.isFinite(c.atSec) || c.atSec < 0 || c.atSec > 24 * 3600) issues.push(`${tag}: bad atSec`);
+    if (!c.prompt?.trim()) issues.push(`${tag}: missing prompt`);
+    if (!Array.isArray(c.choices) || c.choices.length < 2 || c.choices.length > 4) {
+      issues.push(`${tag}: choices must be 2-4`);
+    }
+    if (!Number.isInteger(c.correctChoiceIndex) || c.correctChoiceIndex < 0 || c.correctChoiceIndex >= (c.choices?.length ?? 0)) {
+      issues.push(`${tag}: correctChoiceIndex out of range`);
+    }
+    const xp = c.xp ?? 5;
+    if (!Number.isInteger(xp) || xp < 0 || xp > 500) issues.push(`${tag}: xp out of range`);
+  });
+  return issues;
 }
 
 export interface CourseSection {

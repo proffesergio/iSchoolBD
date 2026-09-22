@@ -143,4 +143,16 @@ by a newer build (no dynamic imports exist in the codebase). Fix:
   Upload the mp3 anywhere (Drive direct link, CDN, Supabase Storage) and paste
   the URL; the lesson row gets a preview player. The `VoiceButton` component
   (`components/ui/VoiceButton.tsx`) plays this file in child materials,
-  falling back to synthesis only where the policy allows.
+   falling back to synthesis only where the policy allows.
+
+## 10. In-video check-ins (Epic 3.1)
+
+- Videos tab → per lecture **Check-ins**: JSON array of
+  `{atSec, prompt, choices[2-4], correctChoiceIndex, xp?}` (≤10 per lecture).
+  Invalid JSON or failed validation blocks the save with field errors.
+- Check-ins pause native playback with an MCQ overlay; correct answers post XP
+  to `video:{course}:{lecture}` topics (visible in Students/Stats). Iframe
+  embeds show them as inline cards under the player.
+- Player extras students get automatically: resume position, offline download
+  (⬇️, direct files only), slow-network notes, celebration confetti + melody
+  (🔔 toggles sound).

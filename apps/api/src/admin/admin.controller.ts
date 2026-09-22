@@ -2,8 +2,9 @@ import {
   Body, Controller, Delete, Get, Param, Put, UseGuards,
 } from '@nestjs/common';
 import {
-  IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min, MinLength,
+  ArrayMaxSize, IsArray, IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min, MinLength, ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { AdminGuard } from './admin.guard';
 import { CatalogService, LessonKind, VideoProvider } from '../catalog/catalog.service';
 import { ProgressService } from '../progress/progress.service';
@@ -28,6 +29,14 @@ class VideoCourseDto {
   @IsOptional() @IsString() @MaxLength(60) subject?: string;
 }
 
+class CheckpointDto {
+  @IsInt() @Min(0) @Max(24 * 3600) atSec!: number;
+  @IsString() @MinLength(1) @MaxLength(300) prompt!: string;
+  @IsArray() @ArrayMaxSize(4) choices!: string[];
+  @IsInt() @Min(0) correctChoiceIndex!: number;
+  @IsOptional() @IsInt() @Min(0) @Max(500) xp?: number;
+}
+
 class LectureDto {
   @IsString() @MinLength(1) @MaxLength(120) id!: string;
   @IsString() @MinLength(1) @MaxLength(160) title!: string;
@@ -38,6 +47,8 @@ class LectureDto {
   @IsOptional() @IsString() @MaxLength(160) sectionTitle?: string;
   @IsOptional() @IsString() @MaxLength(500) directUrl?: string;
   @IsOptional() @IsInt() @Min(0) @Max(24 * 3600) durationSec?: number;
+  @IsOptional() @IsArray() @ArrayMaxSize(10) @ValidateNested({ each: true }) @Type(() => CheckpointDto)
+  checkpoints?: CheckpointDto[];
 }
 
 class CourseDto {

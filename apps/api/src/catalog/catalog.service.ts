@@ -40,6 +40,36 @@ export interface LectureRecord {
   sourceUrl: string;
   directUrl?: string;
   durationSec?: number;
+  checkpoints?: Checkpoint[];
+}
+
+export interface Checkpoint {
+  atSec: number;
+  prompt: string;
+  choices: string[];
+  correctChoiceIndex: number;
+  xp?: number;
+}
+
+/** Shared with apps/web/lib/video-sources.ts validateCheckpoints. */
+export function validateCheckpoints(checkpoints: Checkpoint[] | undefined): string[] {
+  if (!checkpoints) return [];
+  const issues: string[] = [];
+  if (checkpoints.length > 10) issues.push('at most 10 checkpoints per lecture');
+  checkpoints.forEach((c, i) => {
+    const tag = `checkpoint[${i}]`;
+    if (!Number.isFinite(c.atSec) || c.atSec < 0 || c.atSec > 24 * 3600) issues.push(`${tag}: bad atSec`);
+    if (!c.prompt?.trim()) issues.push(`${tag}: missing prompt`);
+    if (!Array.isArray(c.choices) || c.choices.length < 2 || c.choices.length > 4) {
+      issues.push(`${tag}: choices must be 2-4`);
+    }
+    if (!Number.isInteger(c.correctChoiceIndex) || c.correctChoiceIndex < 0 || c.correctChoiceIndex >= (c.choices?.length ?? 0)) {
+      issues.push(`${tag}: correctChoiceIndex out of range`);
+    }
+    const xp = c.xp ?? 5;
+    if (!Number.isInteger(xp) || xp < 0 || xp > 500) issues.push(`${tag}: xp out of range`);
+  });
+  return issues;
 }
 
 export interface SectionRecord {
@@ -267,11 +297,14 @@ export class CatalogService {
   upsertLecture(input: {
     id: string; sectionId?: string; courseId?: string; sectionTitle?: string;
     title: string; provider: VideoProvider; sourceUrl: string; directUrl?: string; durationSec?: number;
+    checkpoints?: Checkpoint[];
   }) {
     if (!PROVIDERS.includes(input.provider)) throw new BadRequestException(`provider must be ${PROVIDERS.join('|')}`);
     if (!input.id.trim() || !input.title.trim() || !input.sourceUrl.trim()) {
       throw new BadRequestException('id, title, sourceUrl are required');
     }
+    const cpIssues = validateCheckpoints(input.checkpoints);
+    if (cpIssues.length > 0) throw new BadRequestException(cpIssues.join('; '));
     let sectionId = input.sectionId ?? '';
     if (!sectionId) {
       // Auto-create a section under the target course (Udemy-style structuring from the panel).
@@ -288,6 +321,7 @@ export class CatalogService {
     const record: LectureRecord = {
       id: input.id, sectionId, title: input.title, provider: input.provider,
       sourceUrl: input.sourceUrl, directUrl: input.directUrl, durationSec: input.durationSec,
+      checkpoints: input.checkpoints?.length ? [...input.checkpoints].sort((a, b) => a.atSec - b.atSec) : undefined,
     };
     this.lectures.set(input.id, record);
     return record;

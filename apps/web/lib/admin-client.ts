@@ -4,6 +4,8 @@
  * this module stays pure fetch so it is unit-testable.
  */
 
+import type { Checkpoint } from "./video-sources";
+
 const BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:3001/api";
 
 /** Shown in the admin unlock screen so a wrong base URL is visible instantly. */
@@ -31,6 +33,7 @@ export interface AdminLectureInput {
   sectionTitle?: string;
   directUrl?: string;
   durationSec?: number;
+  checkpoints?: Checkpoint[];
 }
 
 export interface AdminVideoCourseInput {
