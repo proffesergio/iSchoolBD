@@ -360,3 +360,132 @@ a.pill { text-decoration: none; }
   .headline-swap { animation: none; }
   .pro-bar > div { transition: none; }
 }
+
+/* ---- Minimal course-browser system (Views A/B/C) ----
+   Tokens: 8px grid, 1.25 type scale, white/canvas + charcoal/slate +
+   indigo/midnight accent + hairline borders. All margins/paddings
+   below are multiples of 8px. */
+:root {
+  --minimal-bg: #FFFFFF;
+  --minimal-canvas: #F9FAFB;
+  --minimal-ink: #111827;
+  --minimal-slate: #4B5563;
+  --minimal-accent: #4F46E5;
+  --minimal-midnight: #1E3A8A;
+  --minimal-line: #E5E7EB;
+}
+.minimal-surface {
+  background: var(--minimal-bg);
+  color: var(--minimal-ink);
+}
+.minimal-canvas {
+  background: var(--minimal-canvas);
+  color: var(--minimal-ink);
+}
+.minimal-h1 {
+  font-size: 31.25px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--minimal-ink);
+}
+.minimal-h2 {
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--minimal-ink);
+}
+.minimal-h3 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--minimal-ink);
+}
+.minimal-body {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--minimal-slate);
+}
+.minimal-card {
+  background: #fff;
+  border: 1px solid var(--minimal-line);
+  border-radius: 8px;
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
+}
+.minimal-card:hover {
+  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
+  transform: translateY(-2px);
+}
+.minimal-thumb {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 8px 8px 0 0;
+  background: var(--minimal-canvas);
+}
+.minimal-grid-matrix {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+.minimal-input {
+  width: 100%;
+  border: 1px solid var(--minimal-line);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 16px;
+  line-height: 1.6;
+  background: #fff;
+  color: var(--minimal-ink);
+}
+.minimal-input:focus-visible,
+.minimal-btn:focus-visible,
+.minimal-crumb:focus-visible,
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--minimal-accent);
+  outline-offset: 2px;
+}
+.minimal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.minimal-btn-primary {
+  background: var(--minimal-accent);
+  color: #fff;
+}
+.minimal-btn-primary:hover {
+  background: var(--minimal-midnight);
+}
+.minimal-btn-ghost {
+  background: #fff;
+  color: var(--minimal-ink);
+  border-color: var(--minimal-line);
+}
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -48px;
+  z-index: 100;
+  background: var(--minimal-midnight);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: top 0.15s ease;
+}
+.skip-link:focus {
+  top: 8px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .minimal-card { transition: none; }
+  .minimal-card:hover { transform: none; }
+}
