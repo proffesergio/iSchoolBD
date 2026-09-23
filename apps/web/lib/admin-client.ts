@@ -95,8 +95,7 @@ async function req<T>(path: string, adminKey?: string, init?: RequestInit): Prom
   return (await r.json()) as T;
 }
 
-export const adminApi = {
-  upsertLesson: (key: string, input: AdminLessonInput) =>
+export const adminApi = {  upsertLesson: (key: string, input: AdminLessonInput) =>
     req("/admin/lessons", key, { method: "PUT", body: JSON.stringify(input) }),
   deleteLesson: (key: string, id: string) =>
     req<{ deleted: string }>(`/admin/lessons/${encodeURIComponent(id)}`, key, { method: "DELETE" }),
@@ -110,6 +109,10 @@ export const adminApi = {
     req("/admin/sections", key, { method: "PUT", body: JSON.stringify(input) }),
   deleteSection: (key: string, id: string) =>
     req<{ deleted: string; lecturesRemoved: number }>(`/admin/sections/${encodeURIComponent(id)}`, key, { method: "DELETE" }),
+  upsertCustomBook: (key: string, input: { id: string; classId: string; titleBn: string; titleEn: string; driveFileId: string; note?: string }) =>
+    req("/admin/custom-books", key, { method: "PUT", body: JSON.stringify(input) }),
+  deleteCustomBook: (key: string, id: string) =>
+    req<{ deleted: string }>(`/admin/custom-books/${encodeURIComponent(id)}`, key, { method: "DELETE" }),
   upsertLecture: (key: string, input: AdminLectureInput) =>
     req("/admin/lectures", key, { method: "PUT", body: JSON.stringify(input) }),
   deleteLecture: (key: string, id: string) =>
@@ -136,8 +139,18 @@ export interface VideoCourseTree {
   sections: { id: string; courseId: string; title: string; lectures: AdminLectureInput[] }[];
 }
 
+export interface CustomBookRow {
+  id: string;
+  classId: string;
+  titleBn: string;
+  titleEn: string;
+  driveFileId: string;
+  note?: string;
+}
+
 export const publicApi = {
   health: () => req<{ status: string }>("/health"),
+  customBooks: () => req<CustomBookRow[]>("/catalog/custom-books"),
   courses: () => req<{ id: string; classId: string; subject: string; titleBn: string; titleEn: string }[]>("/catalog/courses"),
   courseTree: (id: string) => req<CourseTree>(`/catalog/courses/${encodeURIComponent(id)}`),
   videoCourses: () => req<{ id: string; titleBn: string; titleEn: string; lectureCount: number }[]>("/catalog/video-courses"),

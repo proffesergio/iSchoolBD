@@ -64,6 +64,9 @@ iOS Share → Add to Home Screen guide); delivery is **weekly sprints** with
 | 1.10 (done) | Pro admin dashboard (reference pattern): dark sidebar, stat cards, activity chart, course rings, subject filters, pro login | 58 web tests green, build green |
 | 1.11 (done) | Full control plane: course/chapter/video-course/section CRUD in API + panel; hydration fixes (deterministic first render); dark-theme hex audit | 22 API + 58 web tests green, build green |
 | A-3.1 (done) | Epic 3.1 Adaptive player GA: resume, lazy-HLS, offline pack, checkpoint check-ins + progress, feedback kit, admin checkpoint editor | 23 API + 64 web tests green, both builds green |
+| B-courses (done) | Class>Books>Chapters system: 80-Q bank, practice+exam ChapterQuiz, device+backend progress sync, badges, daily mission, weekly leaderboard | API + web tests green, builds green |
+| C-nctb1 (done) | NCTB Class 1 Bangla: 54-পাঠ map from real PDF, পাঠ 1–9 verified + track quizzes, /books reader with PDF + practice | 76 web tests green, build green |
+| D-books (done) | 36-book Primary registry (1–5) + upload-by-name admin slots + merged /books library + clean site-wide UI | 25 API + 80 web tests green, builds green |
 | 2 (started) | Class 1 content via admin API (seed script batch 1) + PWA icons/offline | catalog reads show new chapters, Lighthouse PWA ≥ 90 |
 | 3 | Class 2 content + paste-link flow | video job green, 10 real courses in catalog |
 | 4 | Class 3 content + YT importer API | api job green, playlist → course e2e works |

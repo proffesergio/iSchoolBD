@@ -19,7 +19,7 @@ describe('Control plane (catalog + admin + summary)', () => {
   it('GET /api/catalog/courses lists the 9 foundation courses', async () => {
     const r = await request(app.getHttpServer()).get('/api/catalog/courses');
     expect(r.status).toBe(200);
-    expect(r.body).toHaveLength(9);
+    expect(r.body).toHaveLength(10);
   });
 
   it('GET /api/catalog/courses/c1-math returns chapter tree', async () => {
@@ -191,6 +191,47 @@ describe('Control plane (catalog + admin + summary)', () => {
     expect(entry.xp).toBe(10);
     expect(await svc.all()).toHaveLength(1);
     expect(await svc.list('u9')).toHaveLength(1);
+  });
+
+  it('PUT + DELETE /api/admin/custom-books manages guide books', async () => {
+    const put = await request(app.getHttpServer())
+      .put('/api/admin/custom-books')
+      .set('x-admin-key', 'test-admin-key')
+      .send({
+        id: 'guide-1', classId: 'class-1', titleBn: 'গাইড', titleEn: 'Guide',
+        driveFileId: '1ABCDEFghijKLMNOPqrstu', note: 'extra',
+      });
+    expect(put.status).toBe(200);
+    const bad = await request(app.getHttpServer())
+      .put('/api/admin/custom-books')
+      .set('x-admin-key', 'test-admin-key')
+      .send({ id: 'guide-2', classId: 'class-1', titleBn: 'x', titleEn: 'y', driveFileId: 'short' });
+    expect(bad.status).toBe(400);
+    const list = await request(app.getHttpServer()).get('/api/catalog/custom-books');
+    expect(list.body.map((b: { id: string }) => b.id)).toContain('guide-1');
+    const del = await request(app.getHttpServer())
+      .delete('/api/admin/custom-books/guide-1')
+      .set('x-admin-key', 'test-admin-key');
+    expect(del.status).toBe(200);
+  });
+
+  it('GET /api/leaderboard ranks weekly chapter XP per class', async () => {
+    await request(app.getHttpServer()).post('/api/progress').send({
+      user_id: 'lb-anna', topic: 'chapter:c1-ma-count', xp: 40, progress_percentage: 100,
+    });
+    await request(app.getHttpServer()).post('/api/progress').send({
+      user_id: 'lb-bob', topic: 'chapter:c1-ma-count', xp: 20, progress_percentage: 50,
+    });
+    const all = await request(app.getHttpServer()).get('/api/leaderboard').query({ classId: 'class-1' });
+    expect(all.status).toBe(200);
+    expect(all.body.rows[0].user_id).toBe('lb-anna');
+    expect(all.body.rows[0].rank).toBe(1);
+    const other = await request(app.getHttpServer()).get('/api/leaderboard').query({ classId: 'class-2' });
+    expect(other.body.rows.find((r: { user_id: string }) => r.user_id === 'lb-anna')).toBeUndefined();
+    const ranked = await request(app.getHttpServer())
+      .get('/api/leaderboard')
+      .query({ classId: 'class-1', user_id: 'lb-bob' });
+    expect(ranked.body.yourRank).toBe(2);
   });
 
   it('GET /api/progress/summary rolls up a student', async () => {

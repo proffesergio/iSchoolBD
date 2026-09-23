@@ -45,21 +45,22 @@ html, body { margin: 0; padding: 0; font-family: "Hind Siliguri", "Noto Sans Ben
 .hero-cta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 2px; }
 .hero-meter { width: 100%; max-width: 480px; margin: 2px auto 0; padding: 0 14px; }
 .topbar { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 14px; }
-.pill { background: #fff; color: #16324f; border: 3px solid var(--ink); border-radius: 999px; padding: 6px 14px; font-weight: 800; box-shadow: 3px 3px 0 var(--ink); }
+.pill { background: #fff; color: #16324f; border: 1px solid color-mix(in srgb, #16324f 16%, transparent); border-radius: 999px; padding: 7px 15px; font-weight: 700; box-shadow: 0 1px 3px rgba(16, 31, 66, 0.08); }
 a.pill { text-decoration: none; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: 12px; padding: 14px; max-width: 900px; margin: 0 auto; }
-.card { background: var(--card); border: 3px solid var(--ink); border-radius: 22px; font-size: 40px; padding: 12px 0 6px; cursor: pointer; text-align: center; box-shadow: 4px 4px 0 var(--ink); transition: transform .15s ease; animation: floaty 2.6s ease-in-out infinite; }
+.card { background: var(--card); border: 1.5px solid color-mix(in srgb, var(--ink) 14%, transparent); border-radius: 20px; font-size: 40px; padding: 14px 10px 10px; cursor: pointer; text-align: center; box-shadow: 0 2px 10px rgba(16, 31, 66, 0.07); transition: transform .15s ease, box-shadow .15s ease; }
 .card small { display: block; font-size: 20px; }
-.card:hover { transform: scale(1.06) rotate(-1deg); }
-.card:active { transform: scale(.96); }
+.card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 31, 66, 0.12); }
+.card:active { transform: scale(.98); }
 .section-title { max-width: 900px; margin: 8px auto 0; padding: 0 14px; font-weight: 900; font-size: 20px; }
 .fullscreen { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(22,50,79,.55); }
-.sheet { width: min(560px, 100%); background: #fffdf4; color: #16324f; border: 4px solid var(--ink); border-radius: 28px; padding: 18px; text-align: center; box-shadow: 8px 8px 0 var(--ink); animation: pop .25s ease; }
+.sheet { width: min(560px, 100%); background: #fffdf4; color: #16324f; border: 1px solid color-mix(in srgb, #16324f 12%, transparent); border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 12px 32px rgba(16, 31, 66, 0.12); animation: pop .25s ease; }
+[data-theme="dark"] .sheet { background: #16283d; color: #eaf4ff; }
 .big-letter { font-size: 120px; line-height: 1; animation: bounce 1.2s ease infinite; }
 .big-emoji { font-size: 72px; animation: wiggle 1.6s ease-in-out infinite; }
-.btn { border: 3px solid var(--ink); border-radius: 999px; padding: 10px 18px; font-weight: 900; font-size: 18px; cursor: pointer; box-shadow: 3px 3px 0 var(--ink); background: var(--accent3); color: #16324f; }
+.btn { border: 1.5px solid transparent; border-radius: 12px; padding: 11px 20px; font-weight: 800; font-size: 16px; cursor: pointer; background: var(--accent3); color: #16324f; box-shadow: 0 1px 3px rgba(16, 31, 66, 0.12); }
 .btn.primary { background: var(--accent2); color: #fff; }
-.btn.ghost { background: #fff; color: #16324f; }
+.btn.ghost { background: var(--card); color: var(--ink); border-color: color-mix(in srgb, var(--ink) 20%, transparent); }
 .opt { display: block; width: 100%; margin: 8px 0; }
 .shake { animation: shake .4s ease; }
 .sparkle { animation: sparkle .6s ease; }
@@ -79,7 +80,8 @@ a.pill { text-decoration: none; }
 .bottomnav {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
   display: flex; justify-content: space-around; align-items: stretch;
-  background: var(--nav-bg); border-top: 3px solid var(--ink);
+  background: var(--nav-bg); border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  box-shadow: 0 -4px 16px rgba(16, 31, 66, 0.08);
   padding-bottom: env(safe-area-inset-bottom);
 }
 .bottomnav-item {
@@ -101,7 +103,7 @@ a.pill { text-decoration: none; }
 .pwa-text small { opacity: .8; }
 .pwa-btn { padding: 8px 14px; font-size: 15px; }
 @media (min-width: 768px) {
-  .bottomnav { position: sticky; top: 0; bottom: auto; border-top: 0; border-bottom: 3px solid var(--ink); order: -1; }
+  .bottomnav { position: sticky; top: 0; bottom: auto; border-top: 0; border-bottom: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); box-shadow: 0 4px 16px rgba(16, 31, 66, 0.08); order: -1; }
   .shell { flex-direction: column; }
   .pwa-prompt { left: auto; right: 16px; bottom: 16px; max-width: 380px; }
   .footer { padding-bottom: 18px; }
@@ -126,6 +128,12 @@ a.pill { text-decoration: none; }
 .lecture.active { border-color: var(--ink); }
 .lecture-title { flex: 1; }
 .lecture-dur { opacity: .65; font-size: 13px; }
+
+/* ---- Book reader: index + portrait PDF stage ---- */
+.bookreader { display: grid; gap: 14px; }
+@media (min-width: 900px) { .bookreader { grid-template-columns: 320px 1fr; align-items: start; } }
+.bookstage iframe { width: 100%; height: 72vh; border: 3px solid var(--ink); border-radius: 18px; background: #fff; }
+@media (min-width: 900px) { .bookstage iframe { height: 78vh; } }
 
 /* ---- Epic 3.1 player: network states, checkpoints, feedback kit ---- */
 .net-note {
@@ -193,6 +201,16 @@ a.pill { text-decoration: none; }
 [data-theme="dark"] .bg-accent3 { color: #16324f; }
 [data-theme="dark"] .bg-red-300 { color: #16324f; }
 [data-theme="dark"] .bg-\[\#fff7d6\] { background-color: #1e344d; }
+
+/* ---- Clean system: soften legacy chunky utilities site-wide ---- */
+[class*="shadow-[3px_3px_0_#16324f]"] { box-shadow: 0 1px 4px rgba(16, 31, 66, 0.12) !important; }
+[class*="shadow-[8px_8px_0_#16324f]"] { box-shadow: 0 10px 28px rgba(16, 31, 66, 0.12) !important; }
+[class*="shadow-[2px_2px_0_#16324f]"] { box-shadow: 0 1px 3px rgba(16, 31, 66, 0.1) !important; }
+[class*="border-[3px]"] { border-width: 1.5px !important; }
+[class*="rounded-3xl"] { border-radius: 20px !important; }
+[data-theme="dark"] [class*="shadow-[3px_3px_0_#16324f]"],
+[data-theme="dark"] [class*="shadow-[2px_2px_0_#16324f]"] { box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4) !important; }
+[data-theme="dark"] [class*="shadow-[8px_8px_0_#16324f]"] { box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45) !important; }
 
 /* ---- Cosmos: learning beyond the sky ---- */
 .cosmos { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }

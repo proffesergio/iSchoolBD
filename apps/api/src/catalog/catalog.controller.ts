@@ -24,4 +24,9 @@ export class CatalogController {
   videoCourse(@Param('id') id: string) {
     return this.catalog.videoCourseTree(decodeURIComponent(id));
   }
+
+  @Get('custom-books')
+  customBooks() {
+    return this.catalog.listCustomBooks();
+  }
 }

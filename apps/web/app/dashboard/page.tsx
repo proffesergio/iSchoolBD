@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { publicApi, type ProgressSummary } from "../../lib/admin-client";
+import { BadgeCabinet } from "../../components/engage/BadgeCabinet";
 import { getStudentSession } from "../../lib/student-auth";
 import { summarize, topicLabel, type DashboardStats } from "../../lib/analytics";
 import { supabaseBrowser } from "../../lib/supabaseClient";
@@ -117,7 +118,11 @@ export default function DashboardPage() {
       <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
         <Link className="btn primary" href="/courses">শিখতে থাকো 📚</Link>
         <Link className="btn ghost" href="/videos">ভিডিও দেখো 🎬</Link>
+        <Link className="btn ghost" href="/leaderboard">🏆 লিডারবোর্ড</Link>
       </div>
+
+      <h2>🏅 ব্যাজ ক্যাবিনেট</h2>
+      <BadgeCabinet />
       {!user && <p style={{ opacity: 0.7 }}>💡 হোম থেকে 🔑 লগইন করো — তুমি Student হিসেবে গোনা হবে!</p>}
     </main>
   );

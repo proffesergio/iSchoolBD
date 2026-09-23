@@ -9,10 +9,11 @@ import {
 
 describe("track registry (TDD)", () => {
   it("ships one track per tier with real lesson counts", () => {
-    expect(TRACKS.length).toBe(5);
+    expect(TRACKS.length).toBe(6);
     expect(getTrack("math-3-addition")?.lessons.length).toBe(8);
     expect(getTrack("phy-9-motion")?.lessons.length).toBe(5);
-    expect(TOTAL_TRACK_LESSONS).toBe(8 + 5 + 3 + 3 + 3);
+    expect(getTrack("nctb-1-bn-path")?.lessons.length).toBe(9);
+    expect(TOTAL_TRACK_LESSONS).toBe(8 + 5 + 3 + 3 + 3 + 9);
   });
 
   it("validates every track: schema ranges + hints never leak answers", () => {

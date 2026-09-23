@@ -11,7 +11,14 @@
  */
 
 export type ClassId = "class-1" | "class-2" | "class-3";
-export type CoreSubject = "bangla" | "math" | "english";
+export type CoreSubject = "bangla" | "math" | "english" | "science";
+
+export const SUBJECT_META: Record<CoreSubject, { emoji: string; bn: string; en: string }> = {
+  bangla: { emoji: "📝", bn: "বাংলা", en: "Bangla" },
+  math: { emoji: "🔢", bn: "গণিত", en: "Math" },
+  english: { emoji: "🔤", bn: "ইংরেজি", en: "English" },
+  science: { emoji: "🔬", bn: "বিজ্ঞান", en: "Science" },
+};
 export type LessonKind = "interactive" | "video" | "quiz";
 
 export interface LessonRef {
@@ -232,6 +239,27 @@ export const CURRICULUM: SubjectCourse[] = [
           lesson("c3-en-gr-1", "am / is / are", "am / is / are", "interactive", 10),
           lesson("c3-en-gr-2", "Grammar video", "Grammar video", "video", 10),
           lesson("c3-en-gr-3", "Grammar quiz", "Grammar quiz", "quiz", 15),
+        ],
+      },
+    ],
+  },
+  {
+    classId: "class-3", subject: "science", titleBn: "বিজ্ঞান (৩য় শ্রেণি)", titleEn: "Science (Class 3)",
+    chapters: [
+      {
+        id: "c3-sc-life", titleBn: "জীব ও জড়", titleEn: "Living and non-living",
+        lessons: [
+          lesson("c3-sc-li-1", "জীব চেনো", "Meet living things", "interactive", 10),
+          lesson("c3-sc-li-2", "জীব ভিডিও", "Living things video", "video", 10),
+          lesson("c3-sc-li-3", "জীব কুইজ", "Living quiz", "quiz", 15),
+        ],
+      },
+      {
+        id: "c3-sc-env", titleBn: "আমাদের পরিবেশ", titleEn: "Our environment",
+        lessons: [
+          lesson("c3-sc-en-1", "পরিবেশ চেনো", "Meet the environment", "interactive", 10),
+          lesson("c3-sc-en-2", "পরিবেশ ভিডিও", "Environment video", "video", 10),
+          lesson("c3-sc-en-3", "পরিবেশ কুইজ", "Environment quiz", "quiz", 15),
         ],
       },
     ],

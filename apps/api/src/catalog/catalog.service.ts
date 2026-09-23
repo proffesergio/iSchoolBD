@@ -86,6 +86,15 @@ export interface VideoCourseRecord {
   subject?: string;
 }
 
+export interface CustomBookRecord {
+  id: string;
+  classId: string;
+  titleBn: string;
+  titleEn: string;
+  driveFileId: string;
+  note?: string;
+}
+
 const PROVIDERS: VideoProvider[] = ['youtube', 'google-drive', 'terabox', 'direct'];
 const KINDS: LessonKind[] = ['interactive', 'video', 'quiz'];
 
@@ -132,6 +141,10 @@ const COURSE_SEEDS: Array<{
     { id: 'c3-en-read', titleBn: 'পড়া', titleEn: 'Reading' },
     { id: 'c3-en-gram', titleBn: 'Grammar', titleEn: 'Grammar' },
   ] },
+  { id: 'c3-science', classId: 'class-3', subject: 'science', titleBn: 'বিজ্ঞান (৩য় শ্রেণি)', titleEn: 'Science (Class 3)', chapters: [
+    { id: 'c3-sc-life', titleBn: 'জীব ও জড়', titleEn: 'Living and non-living' },
+    { id: 'c3-sc-env', titleBn: 'আমাদের পরিবেশ', titleEn: 'Our environment' },
+  ] },
 ];
 
 @Injectable()
@@ -142,6 +155,7 @@ export class CatalogService {
   private videoCourses = new Map<string, VideoCourseRecord>();
   private sections = new Map<string, SectionRecord>();
   private lectures = new Map<string, LectureRecord>();
+  private customBooks = new Map<string, CustomBookRecord>();
 
   constructor() {
     for (const c of COURSE_SEEDS) {
@@ -213,6 +227,33 @@ export class CatalogService {
       videoCourses: this.videoCourses.size,
       lectures: this.lectures.size,
     };
+  }
+
+  /** classId owning a chapter (for the weekly leaderboard). Null = unknown. */
+  classOfChapter(chapterId: string): string | null {
+    const ch = this.chapters.get(chapterId);
+    if (!ch) return null;
+    return this.courses.get(ch.courseId)?.classId ?? null;
+  }
+
+  // ---- custom books (admin-uploaded guides / extra PDFs) ----
+  listCustomBooks() {
+    return [...this.customBooks.values()];
+  }
+
+  upsertCustomBook(input: { id: string; classId: string; titleBn: string; titleEn: string; driveFileId: string; note?: string }) {
+    if (!input.id.trim() || !input.classId.trim() || !input.titleBn.trim() || !input.titleEn.trim()) {
+      throw new BadRequestException('id, classId, titleBn, titleEn are required');
+    }
+    if (!/^[\w-]{10,}$/.test(input.driveFileId)) throw new BadRequestException('driveFileId looks invalid');
+    const record: CustomBookRecord = { ...input };
+    this.customBooks.set(input.id, record);
+    return record;
+  }
+
+  deleteCustomBook(id: string) {
+    if (!this.customBooks.delete(id)) throw new NotFoundException(`Unknown book: ${id}`);
+    return { deleted: id };
   }
 
   // ---- admin writes ----

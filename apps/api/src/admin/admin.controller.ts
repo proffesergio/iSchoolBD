@@ -72,6 +72,15 @@ class SectionDto {
   @IsString() @MinLength(1) @MaxLength(160) title!: string;
 }
 
+class CustomBookDto {
+  @IsString() @MinLength(1) @MaxLength(120) id!: string;
+  @IsString() @MinLength(1) @MaxLength(60) classId!: string;
+  @IsString() @MinLength(1) @MaxLength(160) titleBn!: string;
+  @IsString() @MinLength(1) @MaxLength(160) titleEn!: string;
+  @IsString() @MinLength(10) @MaxLength(120) driveFileId!: string;
+  @IsOptional() @IsString() @MaxLength(200) note?: string;
+}
+
 /**
  * Admin control plane. Every route is guarded by AdminGuard
  * (`x-admin-key` === ADMIN_API_KEY). Writes mutate the catalog the
@@ -117,6 +126,16 @@ export class AdminController {
   @Delete('sections/:id')
   deleteSection(@Param('id') id: string) {
     return this.catalog.deleteSection(decodeURIComponent(id));
+  }
+
+  @Put('custom-books')
+  upsertCustomBook(@Body() dto: CustomBookDto) {
+    return this.catalog.upsertCustomBook(dto);
+  }
+
+  @Delete('custom-books/:id')
+  deleteCustomBook(@Param('id') id: string) {
+    return this.catalog.deleteCustomBook(decodeURIComponent(id));
   }
 
   @Put('lectures')

@@ -137,7 +137,7 @@ export default function Home() {
           <h2 className="section-title">🎒 আমার শ্রেণির পড়া</h2>
           <div className="grid" style={{ padding: 0 }}>
             {myCourses.map((c) => (
-              <Link key={`${c.classId}-${c.subject}`} href="/courses" className="card" style={{ textDecoration: "none", color: "inherit", fontSize: 22 }}>
+              <Link key={`${c.classId}-${c.subject}`} href={`/courses/${c.classId}/${c.subject}`} className="card" style={{ textDecoration: "none", color: "inherit", fontSize: 22 }}>
                 {c.subject === "bangla" ? "📝" : c.subject === "math" ? "🔢" : "🔤"}
                 <small>{c.titleBn}</small>
                 <small style={{ fontSize: 13, opacity: 0.7 }}>{c.chapters.length} অধ্যায়</small>

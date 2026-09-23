@@ -52,6 +52,10 @@ Content flows **backend → storefront** (new system pattern): edits you save hi
   (`interactive`/`video`/`quiz`), optional `refId`, XP 0–500 → Save (upsert by
   id); Edit loads a row into the form; delete asks for confirm and never
   touches student progress rows.
+- Chapter quizzes live in code (`apps/web/lib/chapter-quiz-bank.ts`, 4 per
+  chapter) and run on `/courses/...` with practice + timed exam modes.
+  Chapter completions POST `chapter:{id}` progress (device-first, synced when
+  logged in) and feed the `/leaderboard` weekly ranks.
 
 ## 4. Managing video courses (🎬 ভিডিও tab)
 

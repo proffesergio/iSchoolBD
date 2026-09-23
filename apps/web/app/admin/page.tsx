@@ -9,13 +9,15 @@ import {
   type AdminLessonInput,
   type AdminStats,
   type CourseTree,
+  type CustomBookRow,
   type StudentRow,
   type VideoCourseTree,
 } from "../../lib/admin-client";
 import { chartGeometry } from "../../lib/admin-chart";
+import { OFFICIAL_BOOKS } from "../../lib/books";
 import { isInlinePlayable, parseVideoLink, validateCheckpoints } from "../../lib/video-sources";
 
-type Tab = "stats" | "lessons" | "videos" | "students";
+type Tab = "stats" | "lessons" | "videos" | "students" | "books";
 
 const KEY_STORAGE = "ischool-admin-key";
 
@@ -27,6 +29,7 @@ const NAV: { id: Tab; glyph: string; label: string; section: string }[] = [
   { id: "stats", glyph: "▦", label: "Overview", section: "Dashboard" },
   { id: "lessons", glyph: "✎", label: "Lessons", section: "Content" },
   { id: "videos", glyph: "▶", label: "Videos", section: "Content" },
+  { id: "books", glyph: "📚", label: "Books", section: "Content" },
   { id: "students", glyph: "●", label: "Students", section: "Users" },
 ];
 
@@ -79,6 +82,10 @@ export default function AdminPage() {
 
   const [students, setStudents] = useState<StudentRow[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
+  const [customBooks, setCustomBooks] = useState<CustomBookRow[]>([]);
+  const [bookForm, setBookForm] = useState({ id: "", classId: "class-1", titleBn: "", titleEn: "", driveFileId: "", note: "" });
+  const [slotClass, setSlotClass] = useState("all");
+  const [slotDrafts, setSlotDrafts] = useState<Record<string, string>>({});
 
   useEffect(() => {
     try {
@@ -91,11 +98,12 @@ export default function AdminPage() {
   const refresh = useCallback(
     async (k: string) => {
       setError(null);
-      const [cs, vcs, st, ss] = await Promise.all([
+      const [cs, vcs, st, ss, cbs] = await Promise.all([
         publicApi.courses(),
         publicApi.videoCourses(),
         adminApi.students(k),
         adminApi.stats(k),
+        publicApi.customBooks().catch((): CustomBookRow[] => []),
       ]);
       const trees = await Promise.all(cs.map((c) => publicApi.courseTree(c.id)));
       const vtrees = await Promise.all(vcs.map((c) => publicApi.videoCourseTree(c.id)));
@@ -103,6 +111,7 @@ export default function AdminPage() {
       setVideoCourses(vtrees);
       setStudents(st);
       setStats(ss);
+      setCustomBooks(cbs);
       if (!courseId && trees[0]) {
         setCourseId(trees[0].id);
         setChapterId(trees[0].chapters[0]?.id ?? "");
@@ -277,6 +286,66 @@ export default function AdminPage() {
       await refresh(key);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Delete failed");
+    }
+  }
+
+  async function saveCustomBook(): Promise<void> {
+    if (!key) return;
+    setError(null);
+    setNotice(null);
+    try {
+      await adminApi.upsertCustomBook(key, bookForm);
+      setNotice(`Book saved: ${bookForm.id}`);
+      setBookForm({ id: "", classId: "class-1", titleBn: "", titleEn: "", driveFileId: "", note: "" });
+      await refresh(key);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Save failed");
+    }
+  }
+
+  async function removeCustomBook(id: string): Promise<void> {
+    if (!key || !window.confirm(`Delete book? ${id}`)) return;
+    try {
+      await adminApi.deleteCustomBook(key, id);
+      setNotice(`Deleted book: ${id}`);
+      await refresh(key);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Delete failed");
+    }
+  }
+
+  function extractDriveId(v: string): string {
+    const t = v.trim();
+    const m = t.match(/\/file\/d\/([-\w]+)/) ?? t.match(/[-\w]{25,}/) ?? t.match(/[-\w]{10,}/);
+    return m ? (m[1] ?? m[0]) : t;
+  }
+
+  /** Upload-by-name: save a Drive link onto an official slot id. */
+  async function saveSlot(id: string): Promise<void> {
+    if (!key) return;
+    const slot = OFFICIAL_BOOKS.find((x) => x.id === id);
+    if (!slot) return;
+    const raw = (slotDrafts[id] ?? "").trim();
+    if (!raw) {
+      setError("আগে Drive লিংক পেস্ট করো।");
+      return;
+    }
+    setError(null);
+    setNotice(null);
+    try {
+      await adminApi.upsertCustomBook(key, {
+        id: slot.id,
+        classId: slot.classId,
+        titleBn: slot.titleBn,
+        titleEn: slot.titleEn,
+        driveFileId: extractDriveId(raw),
+        note: "admin upload",
+      });
+      setNotice(`Book file saved: ${slot.titleBn}`);
+      setSlotDrafts({ ...slotDrafts, [id]: "" });
+      await refresh(key);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Save failed");
     }
   }
 
@@ -763,6 +832,93 @@ export default function AdminPage() {
                 </table>
               </div>
               {derived.students.length === 0 && <p style={{ opacity: 0.6 }}>No students yet — they appear after first login + learning.</p>}
+            </div>
+          </>
+        )}
+
+        {tab === "books" && (
+          <>
+            <h1 className="pro-hello">Books ({customBooks.length} uploads)</h1>
+            <p className="pro-sub">Every official name is listed below — paste a Drive link per book when its PDF arrives. Guides go in the extra form at the bottom.</p>
+            <div className="pro-grid">
+              <div className="pro-card full">
+                <div className="pro-row" style={{ marginTop: 0 }}>
+                  <select value={slotClass} onChange={(e) => setSlotClass(e.target.value)} aria-label="Slot class filter">
+                    {["all", "class-1", "class-2", "class-3", "class-4", "class-5"].map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div className="pro-tablewrap">
+                  <table className="pro-table">
+                    <thead><tr><th>Book (official name)</th><th>Class</th><th>Status</th><th>Drive link</th><th></th></tr></thead>
+                    <tbody>
+                      {OFFICIAL_BOOKS.filter((x) => slotClass === "all" || x.classId === slotClass).map((x) => {
+                        const up = customBooks.find((c) => c.id === x.id);
+                        const file = up?.driveFileId || x.driveFileId;
+                        return (
+                          <tr key={x.id}>
+                            <td><strong>{x.titleBn}</strong><br /><small style={{ opacity: 0.6 }}>{x.titleEn} · {x.id}</small></td>
+                            <td>{x.classId}</td>
+                            <td>{file ? "✅ file" : "📥 awaiting"}{up ? " · admin" : ""}</td>
+                            <td>
+                              <input
+                                placeholder="paste Drive link"
+                                defaultValue=""
+                                key={`${x.id}-${file ? "f" : "e"}`}
+                                onBlur={(e) => setSlotDrafts({ ...slotDrafts, [x.id]: e.target.value })}
+                                aria-label={`Drive link for ${x.id}`}
+                                style={{ width: 200, padding: "8px 10px", fontSize: 13, borderRadius: 8, border: "1.5px solid #d6ddf0" }}
+                              />
+                            </td>
+                            <td style={{ whiteSpace: "nowrap" }}>
+                              <button className="pro-btn go" onClick={() => saveSlot(x.id)}>Save</button>{" "}
+                              {up && <button className="pro-btn line" onClick={() => removeCustomBook(x.id)}>Clear</button>}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div className="pro-card full">
+                <h3>New guide / extra book</h3>
+                <div className="pro-form">
+                  <input placeholder="id (guide-gonit-1)" value={bookForm.id} onChange={(e) => setBookForm({ ...bookForm, id: e.target.value })} aria-label="Book id" />
+                  <select value={bookForm.classId} onChange={(e) => setBookForm({ ...bookForm, classId: e.target.value })} aria-label="Book class">
+                    {["preschool", "class-1", "class-2", "class-3", "class-4", "class-5"].map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  <input placeholder="শিরোনাম (বাংলা)" value={bookForm.titleBn} onChange={(e) => setBookForm({ ...bookForm, titleBn: e.target.value })} aria-label="Book Bangla title" />
+                  <input placeholder="Title (English)" value={bookForm.titleEn} onChange={(e) => setBookForm({ ...bookForm, titleEn: e.target.value })} aria-label="Book English title" />
+                  <input placeholder="Drive link or file ID" value={bookForm.driveFileId} onChange={(e) => {
+                    const v = e.target.value.trim();
+                    const m = v.match(/\/file\/d\/([-\w]+)/) ?? v.match(/[-\w]{25,}/) ?? v.match(/[-\w]{10,}/);
+                    setBookForm({ ...bookForm, driveFileId: m ? (m[1] ?? m[0]) : v });
+                  }} aria-label="Drive link or file ID" />
+                  <input placeholder="Note (optional)" value={bookForm.note} onChange={(e) => setBookForm({ ...bookForm, note: e.target.value })} aria-label="Book note" />
+                </div>
+                <div className="pro-row"><button className="pro-btn go" onClick={saveCustomBook}>Save book</button></div>
+              </div>
+              <div className="pro-card full">
+                <div className="pro-tablewrap">
+                  <table className="pro-table">
+                    <thead><tr><th>Book</th><th>Class</th><th>Drive file</th><th></th></tr></thead>
+                    <tbody>
+                      {customBooks.map((x) => (
+                        <tr key={x.id}>
+                          <td><strong>{x.titleBn}</strong><br /><small style={{ opacity: 0.6 }}>{x.titleEn} · {x.id}</small></td>
+                          <td>{x.classId}</td>
+                          <td><code style={{ fontSize: 12 }}>{x.driveFileId.slice(0, 18)}…</code></td>
+                          <td style={{ whiteSpace: "nowrap" }}>
+                            <a className="pro-btn line" style={{ textDecoration: "none" }} href={`https://drive.google.com/file/d/${x.driveFileId}/preview`} target="_blank" rel="noreferrer">Open</a>{" "}
+                            <button className="pro-btn line" onClick={() => removeCustomBook(x.id)}>Delete</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {customBooks.length === 0 && <p style={{ opacity: 0.6 }}>No custom books yet — guides appear in /books instantly after saving.</p>}
+              </div>
             </div>
           </>
         )}

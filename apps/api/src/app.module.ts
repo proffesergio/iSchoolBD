@@ -12,9 +12,10 @@ import { AdminGuard } from './admin/admin.guard';
 import { AuthController } from './auth/auth.controller';
 import { StudentAuthService } from './auth/student-auth.service';
 import { StudentGuard } from './auth/student.guard';
+import { LeaderboardController } from './leaderboard/leaderboard.controller';
 
 @Module({
-  controllers: [HealthController, LearnController, ProgressController, CatalogController, AdminController, AuthController],
+  controllers: [HealthController, LearnController, ProgressController, CatalogController, AdminController, AuthController, LeaderboardController],
   providers: [LearnService, ProgressService, SupabaseService, CatalogService, AdminGuard, StudentAuthService, StudentGuard],
 })
 export class AppModule {}
